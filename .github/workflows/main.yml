@@ -1,9 +1,32 @@
-name:backup
+name: Trigger Common Workflow
 
 on:
-  backup
+  workflow_run:
+    workflows: ["Common Workflow"]
+    types:
+      - completed
 
-  jobs:
-    -name: Checkout code
-     uses: action/checkout@v2
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger Common Workflow
+        uses: actions/github-script@v5
+        with:
+          github-token: ${{ secrets.PAT }}
+          script: |
+            const { data: repos } = await github.repos.listForOrg({
+              org: 'your-organization',
+              per_page: 100, // Adjust this number based on your needs
+            });
+
+            for (const repo of repos) {
+              await github.actions.createWorkflowDispatch({
+                owner: 'priyankapatil',
+                repo: repo.terraform--vpc,
+                workflow: 'Common Workflow.yml', //  common workflow
+                ref: 'main',
+              });
+            }
      
