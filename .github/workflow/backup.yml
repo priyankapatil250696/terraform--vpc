@@ -22,4 +22,13 @@ on:
            run: ./.github/workflow/github-backup-script.sh
            env:
             SECRET_KEY:${{ secrets.value }}
+
+           -name: Assume role
+            uses: aws-actions/configure-aws-credentials@v1
+            with:
+              role-to-assume: ${{ secrets.BACKUP_AWS_ROLE }}
+              aws-region: ${{ secrets.BACKUP_AWS_REGION}}
+
+           -name: Display assumed role
+            run: aws sts get-caller-identity
            
