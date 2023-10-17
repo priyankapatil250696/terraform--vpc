@@ -1,0 +1,32 @@
+ame: Backup to S3
+
+on:
+  push:
+    branches:
+      - main  # Adjust the branch as needed
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Archive Repository
+        run: tar czf backup.tar.gz .
+
+      - name: Upload Backup to S3
+        run:  aws s3 sync terraform --vpc/ s3://${{ secrets.S3_BUCKET_NAME }}/backups/
+        with:
+          args: --acl public-read --delete
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: us-east-1  # Replace with your AWS region
+          SOURCE_DIR: .
+          DEST_DIR: s3://${{ secrets.S3_BUCKET_NAME }}/backups
+
+
+
+
