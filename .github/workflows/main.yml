@@ -1,0 +1,9 @@
+name:backup
+
+on:
+  backup
+
+  jobs:
+    -name: Checkout code
+     uses: action/checkout@v2
+     
