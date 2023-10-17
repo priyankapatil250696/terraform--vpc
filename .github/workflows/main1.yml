@@ -1,4 +1,4 @@
-ame: Backup to S3
+name: Backup to S3
 
 on:
   push:
