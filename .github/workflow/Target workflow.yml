@@ -1,0 +1,16 @@
+name: Target Workflow
+
+on:
+  repository_dispatch:
+    types: [run-common-workflow]
+
+jobs:
+  target-job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run Target Script
+        run: ./path/to/target_script.sh
