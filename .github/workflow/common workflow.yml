@@ -13,6 +13,6 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Run Common Script
-        run: ./path/to/common_script.sh
+        run: .github/workflow/github-backup-script.sh
         env:
           COMMON_SECRET: ${{ secrets.COMMON_SECRET }}
