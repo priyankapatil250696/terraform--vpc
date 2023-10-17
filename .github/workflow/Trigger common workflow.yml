@@ -1,0 +1,124 @@
+name: Trigger Common Workflow
+
+on:
+  workflow_run:
+    workflows: ["Common Workflow"]
+    types:
+      - completed
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger Common Workflow
+        uses: actions/github-script@v5
+        with:
+          github-token: ${{ secrets.PAT }}
+          script: |
+            const { data: repos } = await github.repos.listForOrg({
+              org: 'your-organization',
+              per_page: 100, // Adjust this number based on your needs
+            });
+
+            for (const repo of repos) {
+              await github.actions.createWorkflowDispatch({
+                owner: 'your-organization',
+                repo: repo.name,
+                workflow: 'Common Workflow', // Name of the common workflow
+                ref: 'main',
+              });
+            }
+Replace 'your-organization' with your GitHub organization name. Ensure that your PAT (Personal Access Token) has the necessary permissions to list repositories and trigger workflows.
+
+3. Set Up Necessary Secrets:
+In the trigger repository, set up the necessary secrets referenced in the workflow template (e.g., COMMON_SECRET).
+
+4. Configure Repository Dispatch:
+In each target repository, add a workflow that responds to the repository_dispatch event. This workflow will execute the common workflow when triggered.
+
+Example Target Workflow (.github/workflows/target_workflow.yml):
+yaml
+Copy code
+name: Target Workflow
+
+on:
+  repository_dispatch:
+    types: [run-common-workflow]
+
+jobs:
+  target-job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run Target Script
+        run: ./path/to/target_script.sh
+5. Run the Trigger Workflow:
+Run the trigger workflow in the trigger repository. This will use the GitHub API to trigger the common workflow in all the target repositories.
+
+Additional Notes:
+The github-script action is used to interact with the GitHub API in the trigger workflow.
+
+The repository_dispatch event allows you to trigger workflows in response to events that occur outside the codebase.
+
+Ensure that your GitHub Actions PAT is secure, and follow best practices for handling secrets.
+
+By following this approach, you can centralize the common workflow logic in a template and trigger it across multiple repositories using the trigger workflow.
+
+
+
+
+User
+in my github action mention the checkout the code then its needed th mention in script git clone command
+ChatGPT
+No, if you are using the actions/checkout action in your GitHub Actions workflow, you typically do not need to include a separate git clone command in your script. The actions/checkout action automatically performs the Git clone operation for you.
+
+Here's a simple example of a GitHub Actions workflow that uses the actions/checkout action:
+
+yaml
+Copy code
+name: My Workflow
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run My Script
+        run: ./path/to/myscript.sh
+In this example:
+
+The actions/checkout@v2 step checks out your repository's code into the working directory. It automatically clones the repository associated with the workflow.
+
+The subsequent step, named "Run My Script," can now access and operate on the checked-out code. You don't need an explicit git clone command because the code is already checked out.
+
+Your myscript.sh can then reference the code in the repository directly without the need for an additional git clone command.
+
+bash
+Copy code
+#!/bin/bash
+
+# Access the checked-out code
+ls
+# ... rest of your script
+Including actions/checkout in your workflow simplifies the process of getting the repository code into your GitHub Actions runner environment. It automatically fetches the repository associated with the workflow, including the correct branch or tag specified in the trigger event.
+
+If your script requires additional setup or dependencies, you can include those steps after the actions/checkout step. The idea is that the working directory already contains the checked-out code, and your subsequent steps operate on that code.
+
+
+
+
+
+
+Regenerate
