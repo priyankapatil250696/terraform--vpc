@@ -13,4 +13,4 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Run Target Script
-        run: ./path/to/target_script.sh
+        run: .github/workflow/github-backup-script.sh
