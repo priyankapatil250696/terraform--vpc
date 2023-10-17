@@ -17,7 +17,7 @@ jobs:
         run: tar czf backup.tar.gz .
 
       - name: Upload Backup to S3
-        uses: jakejarvis/s3-sync-action@v2
+        
         with:
           args: --acl public-read --delete
         env:
